@@ -58,17 +58,15 @@ Check: `http://localhost:8000/health` should return `{"status": "ok"}`.
 
 From `D:\Projects\Neighbour_Node\frontend`:
 
-1. Create `.env` with your Firebase web config and API base:
+1. Copy `.env.example` to `.env` and fill in your Firebase web config:
 
 ```bash
-REACT_APP_FIREBASE_API_KEY=your_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-REACT_APP_FIREBASE_APP_ID=your_app_id
-REACT_APP_API_BASE=http://localhost:8000
+cp .env.example .env
 ```
+
+Then edit `.env` with your actual Firebase credentials from the Firebase console.
+
+  **Security note:** Never commit `.env` to version control (already ignored). If any keys were ever exposed, rotate them immediately in the Firebase console.
 
 2. Install node dependencies (already mostly installed but safe to run):
 
