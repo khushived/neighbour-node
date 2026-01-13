@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
 import { auth } from './firebase';
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
@@ -19,10 +19,18 @@ function AuthGate({ children }) {
 }
 
 function LoginPage() {
+  const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      if (u) navigate('/', { replace: true });
+    });
+    return () => unsub();
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +41,7 @@ function LoginPage() {
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);
     }
