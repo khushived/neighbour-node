@@ -102,7 +102,7 @@ function Dashboard() {
     radius_km: 2,
   });
 
-  const refreshData = useCallback(async (c = coords) => {
+  const refreshData = useCallback(async (c) => {
     if (!c) return;
     try {
       const [nearListings, nearUrgent] = await Promise.all([
@@ -132,7 +132,7 @@ function Dashboard() {
     } catch (e) {
       console.error(e);
     }
-  }, [coords]);
+  }, []);
 
   useEffect(() => {
     // Wait for auth to be ready before fetching data
@@ -153,7 +153,6 @@ function Dashboard() {
       }
     });
     return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshData]);
 
   const handleCreateListing = async (e) => {
@@ -162,7 +161,7 @@ function Dashboard() {
     const payload = { ...form, lat: coords.lat, lng: coords.lng };
     await apiPost('/listings', payload);
     setForm({ ...form, title: '', description: '' });
-    refreshData();
+    refreshData(coords);
   };
 
   const handleCreateUrgent = async (e) => {
@@ -171,7 +170,7 @@ function Dashboard() {
     const payload = { ...urgentForm, lat: coords.lat, lng: coords.lng };
     await apiPost('/urgent', payload);
     setUrgentForm({ ...urgentForm, title: '', description: '' });
-    refreshData();
+    refreshData(coords);
   };
 
   const handleLogout = async () => {
@@ -181,7 +180,7 @@ function Dashboard() {
   const handleReaction = async (type, listingId) => {
     try {
       await apiPost(`/reactions/listings/${listingId}/reactions`, { reaction_type: type });
-      refreshData();
+      refreshData(coords);
     } catch (e) {
       console.error(e);
     }
@@ -190,7 +189,7 @@ function Dashboard() {
   const handleUpdateStatus = async (listingId, newStatus) => {
     try {
       await apiPost(`/listings/${listingId}`, { status: newStatus }, 'PATCH');
-      refreshData();
+      refreshData(coords);
     } catch (e) {
       console.error(e);
       if (e.message.includes('403')) {
