@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
 import { auth } from './firebase';
@@ -101,22 +101,7 @@ function Dashboard() {
     radius_km: 2,
   });
 
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setCoords(c);
-        refreshData(c);
-      },
-      () => {
-        const fallback = { lat: 0, lng: 0 };
-        setCoords(fallback);
-        refreshData(fallback);
-      }
-    );
-  }, []);
-
-  const refreshData = async (c = coords) => {
+  const refreshData = useCallback(async (c = coords) => {
     if (!c) return;
     try {
       const [nearListings, nearUrgent] = await Promise.all([
@@ -146,7 +131,28 @@ function Dashboard() {
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [coords]);
+
+  useEffect(() => {
+    // Wait for auth to be ready before fetching data
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            setCoords(c);
+            refreshData(c);
+          },
+          () => {
+            const fallback = { lat: 0, lng: 0 };
+            setCoords(fallback);
+            refreshData(fallback);
+          }
+        );
+      }
+    });
+    return () => unsubscribe();
+  }, [refreshData]);
 
   const handleCreateListing = async (e) => {
     e.preventDefault();
@@ -185,6 +191,11 @@ function Dashboard() {
       refreshData();
     } catch (e) {
       console.error(e);
+      if (e.message.includes('403')) {
+        alert('You can only update your own listings. This listing belongs to another user.');
+      } else {
+        alert('Failed to update listing status. Please try again.');
+      }
     }
   };
 
