@@ -153,6 +153,7 @@ function Dashboard() {
       }
     });
     return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshData]);
 
   const handleCreateListing = async (e) => {
