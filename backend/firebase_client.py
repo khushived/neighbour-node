@@ -1,6 +1,7 @@
 import os
 import json
 from functools import lru_cache
+from pathlib import Path
 
 import firebase_admin
 from dotenv import load_dotenv
@@ -9,7 +10,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 
-load_dotenv()
+# Load .env from backend directory
+backend_dir = Path(__file__).parent
+load_dotenv(backend_dir / ".env")
 
 
 @lru_cache
@@ -33,8 +36,10 @@ def init_firebase_app():
                 )
             if not os.path.exists(cred_path):
                 raise FileNotFoundError(f"Firebase file not found: {cred_path}")
+            print(f"Loading Firebase credentials from: {cred_path}")
             cred = credentials.Certificate(cred_path)
         firebase_admin.initialize_app(cred)
+        print("Firebase app initialized successfully")
     return firebase_admin.get_app()
 
 
