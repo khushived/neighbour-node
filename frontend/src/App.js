@@ -8,6 +8,7 @@ import { apiGet, apiPost } from './api';
 function AuthGate({ children }) {
   const [user, setUser] = useState(undefined);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setUser(u || null));
     return () => unsub();
