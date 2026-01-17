@@ -1,0 +1,7 @@
+{
+  "name": "Neighbour Node",
+  "short_name": "Neighbour",
+  "icons": [],
+  "start_url": "/",
+  "display": "standalone"
+}
